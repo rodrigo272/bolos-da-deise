@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bolos da Deise - Tabela de Recheios</title>
+  <style>
+    :root {
+      --rosa: #f7c5d8;
+      --laranja: #f39c6b;
+      --texto: #2d2a2e;
+      --subtexto: #6b656e;
+      --fundo: #fff9fb;
+      --card: #ffffff;
+      --whatsapp: #25d366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--fundo);
+      color: var(--texto);
+      padding-bottom: 95px;
+    }
+
+    header {
+      background-color: var(--rosa);
+      border-bottom: 6px solid var(--laranja);
+      text-align: center;
+      padding: 28px 16px 22px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--texto);
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--texto);
+    }
+
+    .secao-titulo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--texto);
+      padding-left: 4px;
+    }
+
+    .dica {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--subtexto);
+      margin-bottom: 16px;
+    }
+
+    .busca {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #eed6e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 18px;
+      outline: none;
+      background: #fff;
+    }
+
+    .busca:focus {
+      border-color: var(--laranja);
+    }
+
+    .lista {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border-left: 4px solid var(--rosa);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.12s ease;
+    }
+
+    .item.adicional {
+      border-left-color: var(--laranja);
+    }
+
+    .item:active {
+      transform: scale(0.99);
+    }
+
+    .sabor {
+      font-size: 0.98rem;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .preco {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #c95b2b;
+      white-space: nowrap;
+    }
+
+    .obs-box {
+      margin-top: 24px;
+      background: #fff3ec;
+      border: 1px solid #f7cfb8;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #5c3a28;
+    }
+
+    .obs-box p + p {
+      margin-top: 6px;
+    }
+
+    .status {
+      text-align: center;
+      color: var(--subtexto);
+      padding: 24px 0;
+      font-size: 0.95rem;
+    }
+
+    .whatsapp-fixo {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--whatsapp);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 26px;
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>BOLOS DA DEISE</h1>
+    <p>📞 (11) 96572-6452</p>
+  </header>
+
+  <main class="container">
+    <div class="subtitulo">TABELA DE RECHEIOS (1kg)</div>
+    <p class="dica">Toque em um sabor para pedir direto no WhatsApp</p>
+
+    <input
+      type="text"
+      id="busca"
+      class="busca"
+      placeholder="Buscar sabor ou fruta (ex: morango, ninho)..."
+    />
+
+    <div id="lista-recheios" class="lista">
+      <div class="status">Carregando tabela de sabores...</div>
+    </div>
+
+    <div id="secao-adicionais" style="display: none;">
+      <div class="secao-titulo">TOPOS DE BOLO</div>
+      <div id="lista-adicionais" class="lista"></div>
+    </div>
+
+    <div id="box-obs" class="obs-box" style="display: none;"></div>
+  </main>
+
+  <a
+    class="whatsapp-fixo"
+    href="https://wa.me/5511965726452?text=Ol%C3%A1%20Deise!%20Vi%20a%20tabela%20de%20recheios%20e%20gostaria%20de%20fazer%20um%20or%C3%A7amento."
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Fazer pedido no WhatsApp
+  </a>
+
+  <script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSm1vUy4HbGo4KfMwi8OU8EspDMLBSZVjIMBIZZtrLBDS7ffh39wOQotKJ1zL9fWcH5pww8rCPZjz1B/pub?gid=1317744481&single=true&output=csv";
+    const TELEFONE_WHATS = "5511965726452";
+
+    let recheios = [];
+    let adicionais = [];
+    let observacoes = [];
+
+    function normalizar(texto) {
+      return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (inQuotes) {
+          if (char === '"' && next === '"') {
+            cell += '"';
+            i++;
+          } else if (char === '"') {
+            inQuotes = false;
+          } else {
+            cell += char;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === ",") {
+            row.push(cell.trim());
+            cell = "";
+          } else if (char === "\n" || (char === "\r" && next === "\n")) {
+            if (char === "\r") i++;
+            row.push(cell.trim());
+            rows.push(row);
+            row = [];
+            cell = "";
+          } else {
+            cell += char;
+          }
+        }
+      }
+      if (cell.length > 0 || row.length > 0) {
+        row.push(cell.trim());
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function criarCard(item, ehAdicional = false) {
+      const msg = ehAdicional
+        ? `Olá Deise! Gostaria de incluir ${item.nome} (${item.preco}) no meu pedido.`
+        : `Olá Deise! Gostaria de encomendar um bolo com recheio de ${item.nome} (${item.preco}/kg).`;
+
+      return `
+        <a class="item ${ehAdicional ? "adicional" : ""}" href="https://wa.me/${TELEFONE_WHATS}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer">
+          <span class="sabor">${item.nome}</span>
+          <span class="preco">${item.preco}</span>
+        </a>
+      `;
+    }
+
+    function renderizar(filtro = "") {
+      const recheiosEl = document.getElementById("lista-recheios");
+      const adicionaisEl = document.getElementById("lista-adicionais");
+      const secaoAdicionais = document.getElementById("secao-adicionais");
+      const obsEl = document.getElementById("box-obs");
+
+      const termo = normalizar(filtro);
+
+      const recheiosFiltrados = recheios.filter(item =>
+        normalizar(item.nome).includes(termo)
+      );
+
+      if (recheiosFiltrados.length === 0) {
+        recheiosEl.innerHTML = '<div class="status">Nenhum sabor encontrado.</div>';
+      } else {
+        recheiosEl.innerHTML = recheiosFiltrados.map(i => criarCard(i, false)).join("");
+      }
+
+      if (adicionais.length > 0 && termo === "") {
+        secaoAdicionais.style.display = "block";
+        adicionaisEl.innerHTML = adicionais.map(i => criarCard(i, true)).join("");
+      } else {
+        secaoAdicionais.style.display = "none";
+      }
+
+      if (observacoes.length > 0) {
+        obsEl.style.display = "block";
+        obsEl.innerHTML = observacoes.map(texto => `<p>${texto}</p>`).join("");
+      }
+    }
+
+    async function carregarTabela() {
+      const recheiosEl = document.getElementById("lista-recheios");
+      try {
+        const resp = await fetch(`${CSV_URL}&_t=${Date.now()}`);
+        if (!resp.ok) throw new Error("Erro ao buscar planilha");
+        const csvText = await resp.text();
+        const linhas = parseCSV(csvText);
+
+        recheios = [];
+        adicionais = [];
+        observacoes = [];
+
+        // Lê a partir da linha 8 (índice 7), Coluna B (1) e Coluna D (3)
+        linhas.slice(7).forEach(cols => {
+          const textoB = (cols[1] || "").trim();
+          const precoD = (cols[3] || "").trim();
+
+          if (!textoB) return;
+
+          if (precoD) {
+            const item = { nome: textoB, preco: precoD };
+            if (normalizar(textoB).includes("topo de bolo")) {
+              adicionais.push(item);
+            } else {
+              recheios.push(item);
+            }
+          } else {
+            observacoes.push(textoB);
+          }
+        });
+
+        renderizar();
+      } catch (erro) {
+        recheiosEl.innerHTML =
+          '<div class="status">Não foi possível carregar a tabela no momento. Chame no WhatsApp abaixo!</div>';
+        console.error(erro);
+      }
+    }
+
+    document.getElementById("busca").addEventListener("input", e => {
+      renderizar(e.target.value);
+    });
+
+    carregarTabela();
+  </script>
+</body>
+</html>
